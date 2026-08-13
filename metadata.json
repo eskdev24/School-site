@@ -1,0 +1,6 @@
+{
+  "name": "SAMATHS SOLUTIONS",
+  "description": "Leading Abacus Mental Maths school program in Ghana. Fast, fun, and easy mental maths for children.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
