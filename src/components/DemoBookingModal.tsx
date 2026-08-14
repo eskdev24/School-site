@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Calendar, School, User, Phone, MapPin, Users, CheckCircle, Sparkles, Send } from 'lucide-react';
+import { X, Calendar, School, User, Phone, Mail, MapPin, Users, CheckCircle, Sparkles, Send, AlertCircle } from 'lucide-react';
 import { SITE_INFO } from '../data/siteData';
 import { DemoBookingData } from '../types';
+import { isValidEmail, isValidPhone } from '../lib/validation';
 
 interface DemoBookingModalProps {
   isOpen: boolean;
@@ -21,17 +22,55 @@ export const DemoBookingModal: React.FC<DemoBookingModalProps> = ({ isOpen, onCl
     additionalNotes: ''
   });
 
+  const [errors, setErrors] = useState<{
+    schoolName?: string;
+    contactPerson?: string;
+    phone?: string;
+    email?: string;
+  }>({});
+
   const [submitted, setSubmitted] = useState(false);
 
   if (!isOpen) return null;
 
+  const validateForm = () => {
+    const newErrors: {
+      schoolName?: string;
+      contactPerson?: string;
+      phone?: string;
+      email?: string;
+    } = {};
+
+    if (!formData.schoolName.trim()) {
+      newErrors.schoolName = 'Please enter your school name';
+    }
+
+    if (!formData.contactPerson.trim()) {
+      newErrors.contactPerson = 'Please enter the contact person name';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Please enter a phone or WhatsApp number';
+    } else if (!isValidPhone(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number (e.g. 0536541414 or +233...)';
+    }
+
+    if (formData.email.trim() && !isValidEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address (e.g. school@example.com)';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setSubmitted(true);
   };
 
   const handleWhatsAppRedirect = () => {
-    const message = `Hello SAMATHS SOLUTIONS,%0A%0AI would like to schedule a FREE Session for my school!%0A%0A*School Name:* ${encodeURIComponent(formData.schoolName)}%0A*Contact Person:* ${encodeURIComponent(formData.contactPerson)} (${formData.role})%0A*Phone:* ${encodeURIComponent(formData.phone)}%0A*Location:* ${encodeURIComponent(formData.location)}%0A*Estimated Students:* ${encodeURIComponent(formData.estimatedStudents)}%0A*Preferred Date:* ${encodeURIComponent(formData.preferredDate)}%0A*Notes:* ${encodeURIComponent(formData.additionalNotes || 'N/A')}`;
+    const message = `Hello SAMATHS SOLUTIONS,%0A%0AI would like to schedule a Session for my school!%0A%0A*School Name:* ${encodeURIComponent(formData.schoolName)}%0A*Contact Person:* ${encodeURIComponent(formData.contactPerson)} (${formData.role})%0A*Phone:* ${encodeURIComponent(formData.phone)}${formData.email ? `%0A*Email:* ${encodeURIComponent(formData.email)}` : ''}%0A*Location:* ${encodeURIComponent(formData.location)}%0A*Estimated Students:* ${encodeURIComponent(formData.estimatedStudents)}%0A*Preferred Date:* ${encodeURIComponent(formData.preferredDate || 'N/A')}%0A*Notes:* ${encodeURIComponent(formData.additionalNotes || 'N/A')}`;
     window.open(`https://wa.me/${SITE_INFO.phoneRaw}?text=${message}`, '_blank');
   };
 
@@ -55,10 +94,10 @@ export const DemoBookingModal: React.FC<DemoBookingModalProps> = ({ isOpen, onCl
           </div>
 
           <h3 className="font-heading font-extrabold text-2xl text-white">
-            Schedule a FREE Session
+            Schedule a Session
           </h3>
           <p className="text-xs text-slate-200 mt-1">
-            Experience our abacus mental maths curriculum live with a free session at your school campus.
+            Experience our abacus mental maths curriculum live with a session at your school campus.
           </p>
         </div>
 
@@ -73,7 +112,7 @@ export const DemoBookingModal: React.FC<DemoBookingModalProps> = ({ isOpen, onCl
                 Session Request Received!
               </h4>
               <p className="text-slate-600 text-sm max-w-md mx-auto leading-relaxed">
-                Thank you, <strong>{formData.contactPerson}</strong>. Your FREE session request for <strong>{formData.schoolName}</strong> has been logged.
+                Thank you, <strong>{formData.contactPerson}</strong>. Your session request for <strong>{formData.schoolName}</strong> has been logged.
               </p>
 
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left text-xs space-y-1 max-w-md mx-auto">
@@ -114,13 +153,21 @@ export const DemoBookingModal: React.FC<DemoBookingModalProps> = ({ isOpen, onCl
                   <School className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                   <input
                     type="text"
-                    required
                     placeholder="e.g. Grace Preparatory School"
                     value={formData.schoolName}
-                    onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
+                    onChange={(e) => {
+                      setFormData({ ...formData, schoolName: e.target.value });
+                      if (errors.schoolName) setErrors({ ...errors, schoolName: undefined });
+                    }}
+                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl border ${errors.schoolName ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
                   />
                 </div>
+                {errors.schoolName && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{errors.schoolName}</span>
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -132,13 +179,21 @@ export const DemoBookingModal: React.FC<DemoBookingModalProps> = ({ isOpen, onCl
                     <User className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                     <input
                       type="text"
-                      required
                       placeholder="e.g. Mrs. Abena Osei"
                       value={formData.contactPerson}
-                      onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
+                      onChange={(e) => {
+                        setFormData({ ...formData, contactPerson: e.target.value });
+                        if (errors.contactPerson) setErrors({ ...errors, contactPerson: undefined });
+                      }}
+                      className={`w-full pl-9 pr-3 py-2.5 rounded-xl border ${errors.contactPerson ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
                     />
                   </div>
+                  {errors.contactPerson && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.contactPerson}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -167,15 +222,50 @@ export const DemoBookingModal: React.FC<DemoBookingModalProps> = ({ isOpen, onCl
                     <Phone className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                     <input
                       type="tel"
-                      required
-                      placeholder="0536541414"
+                      placeholder="e.g. 0536541414"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
+                      onChange={(e) => {
+                        setFormData({ ...formData, phone: e.target.value });
+                        if (errors.phone) setErrors({ ...errors, phone: undefined });
+                      }}
+                      className={`w-full pl-9 pr-3 py-2.5 rounded-xl border ${errors.phone ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
                     />
                   </div>
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.phone}</span>
+                    </p>
+                  )}
                 </div>
 
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    Email Address (Optional)
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                    <input
+                      type="email"
+                      placeholder="e.g. school@example.com"
+                      value={formData.email}
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value });
+                        if (errors.email) setErrors({ ...errors, email: undefined });
+                      }}
+                      className={`w-full pl-9 pr-3 py-2.5 rounded-xl border ${errors.email ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
                     School Location *
@@ -194,9 +284,7 @@ export const DemoBookingModal: React.FC<DemoBookingModalProps> = ({ isOpen, onCl
                     </select>
                   </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
                     Est. Students (Ages 4-14)
@@ -215,20 +303,20 @@ export const DemoBookingModal: React.FC<DemoBookingModalProps> = ({ isOpen, onCl
                     </select>
                   </div>
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Preferred Session Date
-                  </label>
-                  <div className="relative">
-                    <Calendar className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                    <input
-                      type="date"
-                      value={formData.preferredDate}
-                      onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
-                    />
-                  </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Preferred Session Date
+                </label>
+                <div className="relative">
+                  <Calendar className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                  <input
+                    type="date"
+                    value={formData.preferredDate}
+                    onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
+                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
+                  />
                 </div>
               </div>
 

@@ -1,21 +1,22 @@
-import React, { useState } from 'react';
-import { Phone, Mail, MapPin, Menu, X, BookOpen, Sparkles, CheckCircle, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { Phone, Mail, MapPin, Menu, X, BookOpen, Sparkles } from 'lucide-react';
 import { SITE_INFO } from '../data/siteData';
+import { BrandLogo } from './BrandLogo';
 
 interface HeaderProps {
   currentPage: 'home' | 'gallery' | 'contact';
   onNavigate: (page: 'home' | 'gallery' | 'contact', sectionId?: string) => void;
-  onOpenDemoModal: () => void;
-  onOpenParentModal: () => void;
+  onOpenDemoModal?: () => void;
+  onOpenParentModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentPage,
   onNavigate,
-  onOpenDemoModal,
-  onOpenParentModal,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('home');
 
   const navLinks = [
     { name: 'Home', targetPage: 'home', sectionId: 'home' },
@@ -27,9 +28,44 @@ export const Header: React.FC<HeaderProps> = ({
     { name: 'Contact', targetPage: 'contact', sectionId: 'contact' },
   ];
 
-  const handleLinkClick = (e: React.MouseEvent, link: { name: string; targetPage: string; sectionId: string }) => {
+  // Scroll spy for sections on home page
+  useEffect(() => {
+    if (currentPage !== 'home') {
+      setActiveSection(currentPage);
+      return;
+    }
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 180;
+      const sectionIds = ['home', 'about', 'program', 'why-us', 'reach'];
+
+      // Find current active section based on scroll position
+      let current = 'home';
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el) {
+          const top = el.offsetTop;
+          const height = el.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            current = id;
+            break;
+          } else if (scrollPosition >= top) {
+            current = id;
+          }
+        }
+      }
+      setActiveSection(current);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentPage]);
+
+  const handleLinkClick = (e: React.MouseEvent, link: (typeof navLinks)[0]) => {
     e.preventDefault();
     setMobileMenuOpen(false);
+    setActiveSection(link.sectionId);
     if (link.targetPage === 'contact') {
       onNavigate('contact');
     } else if (link.targetPage === 'gallery') {
@@ -40,35 +76,72 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white shadow-md border-b border-slate-100">
-      {/* Top Utility Bar */}
-      <div className="bg-emerald-900 text-slate-100 text-xs py-2 px-4 sm:px-8 border-b border-emerald-800">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
-          {/* Contact details */}
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 justify-center sm:justify-start w-full sm:w-auto">
-            <a 
-              href={`tel:+${SITE_INFO.phoneRaw}`} 
-              className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors"
-            >
-              <Phone className="w-3.5 h-3.5 text-emerald-400" />
-              <span>+{SITE_INFO.phoneRaw}</span>
-            </a>
-            <a 
-              href={`mailto:${SITE_INFO.email}`} 
-              className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors"
-            >
-              <Mail className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{SITE_INFO.email}</span>
-            </a>
-            <div className="hidden md:flex items-center gap-1.5 text-slate-300">
-              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{SITE_INFO.location}</span>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white shadow-md border-b border-slate-100">
+        {/* Animated Top Utility Bar (Infinite Right-to-Left Loop) */}
+      <div className="bg-emerald-950 text-slate-100 text-xs py-2 border-b border-emerald-800 overflow-hidden relative">
+        {/* Subtle edge gradient masks for smooth transitions */}
+        <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-emerald-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-emerald-950 to-transparent z-10 pointer-events-none" />
+
+        <motion.div
+          className="flex items-center w-max"
+          animate={{ x: ['0%', '-50%'] }}
+          transition={{
+            repeat: Infinity,
+            repeatType: 'loop',
+            ease: 'linear',
+            duration: 35,
+          }}
+        >
+          {/* Duplicate track content twice for seamless infinite loop */}
+          {[0, 1].map((copyIndex) => (
+            <div key={copyIndex} className="flex items-center gap-6 sm:gap-10 pr-6 sm:pr-10 shrink-0 whitespace-nowrap">
+              <a 
+                href={`tel:+${SITE_INFO.phoneRaw}`} 
+                className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                <span>+{SITE_INFO.phoneRaw}</span>
+              </a>
+
+              <span className="text-emerald-700 select-none">•</span>
+
+              <a 
+                href={`mailto:${SITE_INFO.email}`} 
+                className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{SITE_INFO.email}</span>
+              </a>
+
+              <span className="text-emerald-700 select-none">•</span>
+
+              <div className="flex items-center gap-1.5 text-slate-300">
+                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{SITE_INFO.location}</span>
+              </div>
+
+              <span className="text-emerald-700 select-none">•</span>
+
+              <div className="flex items-center gap-1.5 font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>
+                  <span className="font-logo font-extrabold text-amber-400">SAMATHS</span>{' '}
+                  <span className="font-logo font-extrabold text-emerald-400">SOLUTIONS</span>{' '}
+                  <span className="text-emerald-300">({SITE_INFO.tagline})</span>
+                </span>
+              </div>
+
+              <span className="text-emerald-700 select-none">•</span>
+
+              <div className="flex items-center gap-1.5 text-slate-300">
+                <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Abacus Mental Maths & Brain Development</span>
+              </div>
             </div>
-          </div>
-          <div className="hidden sm:block text-[11px] text-emerald-300 font-medium">
-            Sunyani & Accra, Ghana
-          </div>
-        </div>
+          ))}
+        </motion.div>
       </div>
 
       {/* Main Navigation Bar */}
@@ -78,64 +151,54 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Logo & Brand Name */}
           <button
             onClick={() => onNavigate('home', 'home')}
-            className="flex items-center gap-3 group text-left"
+            className="group text-left cursor-pointer focus:outline-none"
+            aria-label="SAMATHS SOLUTIONS Home"
           >
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white flex items-center justify-center font-bold text-xl shadow-md group-hover:scale-105 transition-transform border border-emerald-500">
-              <span className="font-heading tracking-wider">SS</span>
-            </div>
-            <div>
-              <div className="font-heading font-extrabold text-xl sm:text-2xl text-slate-900 tracking-tight leading-none group-hover:text-emerald-700 transition-colors">
-                {SITE_INFO.brandName}
-              </div>
-              <div className="text-xs font-medium text-emerald-600 italic tracking-wide mt-1">
-                ({SITE_INFO.tagline})
-              </div>
-            </div>
+            <BrandLogo theme="light" size="md" />
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-7">
             {navLinks.map((link) => {
-              const isActive = currentPage === link.targetPage;
+              const isHomeSection = link.targetPage === 'home';
+              const isActive =
+                currentPage === 'home'
+                  ? isHomeSection && activeSection === link.sectionId
+                  : currentPage === link.targetPage;
+
               return (
                 <a
                   key={link.name}
                   href={`#${link.sectionId}`}
-                  onClick={(e) => handleLinkClick(e, link as any)}
-                  className={`font-semibold text-sm transition-colors relative py-1 ${
+                  onClick={(e) => handleLinkClick(e, link)}
+                  className={`group relative py-2 text-sm font-semibold transition-colors duration-200 ${
                     isActive
-                      ? 'text-emerald-700 after:w-full'
-                      : 'text-slate-700 hover:text-emerald-700'
-                  } after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-emerald-600 hover:after:w-full after:transition-all`}
+                      ? 'text-emerald-700 font-bold'
+                      : 'text-slate-600 hover:text-emerald-700'
+                  }`}
                 >
-                  {link.name}
+                  <span className="relative z-10">{link.name}</span>
+
+                  {/* Active Sliding Underline Indicator with Spring Animation */}
+                  {isActive ? (
+                    <motion.div
+                      layoutId="activeNavIndicator"
+                      className="absolute -bottom-0.5 left-0 right-0 h-[2.5px] bg-emerald-600 rounded-full"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  ) : (
+                    <span className="absolute -bottom-0.5 left-0 w-0 h-[2px] bg-emerald-400/50 rounded-full transition-all duration-300 group-hover:w-full" />
+                  )}
                 </a>
               );
             })}
           </nav>
 
-          {/* Action Buttons */}
-          <div className="hidden sm:flex items-center gap-3">
-            <button
-              onClick={onOpenParentModal}
-              className="px-4 py-2.5 rounded-lg text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 font-semibold text-xs uppercase tracking-wider transition-all"
-            >
-              Register Child
-            </button>
-            <button
-              onClick={onOpenDemoModal}
-              className="px-5 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all flex items-center gap-2 group"
-            >
-              <span>Book a Session</span>
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
-
           {/* Mobile Menu Toggle */}
           <div className="flex lg:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none"
+              className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -146,43 +209,40 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-slate-100 px-4 pt-4 pb-6 space-y-4 shadow-xl">
-          <div className="flex flex-col space-y-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={`#${link.sectionId}`}
-                onClick={(e) => handleLinkClick(e, link as any)}
-                className="px-3 py-2 rounded-md text-base font-semibold text-slate-800 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-          </div>
+        <div className="lg:hidden bg-white border-t border-slate-100 px-4 pt-3 pb-5 shadow-xl">
+          <div className="flex flex-col space-y-1">
+            {navLinks.map((link) => {
+              const isHomeSection = link.targetPage === 'home';
+              const isActive =
+                currentPage === 'home'
+                  ? isHomeSection && activeSection === link.sectionId
+                  : currentPage === link.targetPage;
 
-          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenParentModal();
-              }}
-              className="w-full py-3 rounded-lg text-emerald-800 bg-emerald-100 font-bold text-sm text-center"
-            >
-              Parent Registration (Child)
-            </button>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenDemoModal();
-              }}
-              className="w-full py-3 rounded-lg bg-emerald-700 text-white font-bold text-sm shadow-md text-center flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Book a Free Session (Schools)</span>
-            </button>
+              return (
+                <a
+                  key={link.name}
+                  href={`#${link.sectionId}`}
+                  onClick={(e) => handleLinkClick(e, link)}
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm transition-all duration-150 ${
+                    isActive
+                      ? 'bg-emerald-50 text-emerald-800 font-bold border-l-4 border-emerald-600 pl-3'
+                      : 'text-slate-700 hover:text-emerald-700 hover:bg-slate-50 font-medium pl-4'
+                  }`}
+                >
+                  <span>{link.name}</span>
+                  {isActive && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-600 shadow-xs" />
+                  )}
+                </a>
+              );
+            })}
           </div>
         </div>
       )}
-    </header>
+      </header>
+      {/* Layout Spacer so content begins directly below fixed header */}
+      <div className="h-[114px] w-full shrink-0" aria-hidden="true" />
+    </>
   );
 };
+

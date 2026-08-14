@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Camera, Maximize2, X, ChevronLeft, ChevronRight, MapPin, ArrowLeft, Sparkles, BookOpen } from 'lucide-react';
 import { SITE_INFO } from '../data/siteData';
+import { useMetaTags } from './MetaTags';
 
 interface GalleryPageProps {
   onBackToHome: () => void;
@@ -16,6 +17,15 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Dynamic Open Graph & Twitter Social Meta Tags for Gallery Page
+  useMetaTags({
+    title: 'Photo Gallery & Student Highlights | SAMATHS SOLUTIONS Ghana',
+    description: 'Explore live classroom sessions, speed competitions, student awards, and abacus math training highlights across Sunyani, Accra, and all parts of Ghana.',
+    url: `${typeof window !== 'undefined' ? window.location.origin : ''}#gallery`,
+    image: SITE_INFO.images.abacusAwards || SITE_INFO.images.heroBanner,
+    keywords: 'SAMATHS SOLUTIONS gallery, abacus photos Ghana, mental maths competition Sunyani, abacus awards Ghana, classroom arithmetic lessons',
+  });
 
   const categories = ['All', 'Classroom Lessons', 'Competitions & Demos', 'Certificates & Awards'];
 
@@ -62,7 +72,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({
 
           <div className="max-w-3xl">
             <h1 className="font-heading font-black text-3xl sm:text-5xl text-white tracking-tight leading-tight mb-4">
-              SAMATHS SOLUTIONS In Action
+              <span className="font-logo"><span className="text-amber-400">SAMATHS</span> <span className="text-emerald-400">SOLUTIONS</span></span> In Action
             </h1>
             <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
               Explore moments from our abacus mental maths classrooms, inter-school speed calculation competitions, live demonstrations, and student award ceremonies across Ghana.
@@ -228,7 +238,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({
               Want Your School or Child in Our Next Showcase?
             </h3>
             <p className="text-xs sm:text-sm text-emerald-100 mt-1 max-w-2xl">
-              Book a free live session for your school or enroll your child in our abacus brain development program today.
+              Book a live session for your school or enroll your child in our abacus brain development program today.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 shrink-0">

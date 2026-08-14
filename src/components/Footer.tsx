@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, Mail, MapPin, CreditCard, Sparkles } from 'lucide-react';
 import { SITE_INFO } from '../data/siteData';
+import { BrandLogo } from './BrandLogo';
 
 interface FooterProps {
   onNavigate?: (page: 'home' | 'gallery' | 'contact', sectionId?: string) => void;
@@ -25,19 +26,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenDemoModal, onO
           
           {/* Brand Col */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center font-bold text-lg shadow-md border border-emerald-400">
-                <span className="font-heading">SS</span>
-              </div>
-              <div>
-                <span className="font-heading font-extrabold text-xl text-white tracking-tight block">
-                  {SITE_INFO.brandName}
-                </span>
-                <span className="text-xs text-emerald-400 italic font-medium block">
-                  ({SITE_INFO.tagline})
-                </span>
-              </div>
-            </div>
+            <BrandLogo theme="dark" size="md" />
 
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               Leading Abacus Mental Maths company in Accra, Sunyani, Ghana. We partner with schools to deliver fun, brain-boosting classes that transform how children think, learn, and calculate.
@@ -125,7 +114,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenDemoModal, onO
         {/* Bottom copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            © {new Date().getFullYear()} <strong>{SITE_INFO.brandName}</strong>. All Rights Reserved.
+            © {new Date().getFullYear()} <span className="font-logo font-bold"><span className="text-amber-400">SAMATHS</span> <span className="text-emerald-400">SOLUTIONS</span></span>. All Rights Reserved.
           </div>
         </div>
 

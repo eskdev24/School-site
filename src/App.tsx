@@ -12,11 +12,22 @@ import { DemoBookingModal } from './components/DemoBookingModal';
 import { ParentRegisterModal } from './components/ParentRegisterModal';
 import { FloatingActions } from './components/FloatingActions';
 import { Footer } from './components/Footer';
+import { useMetaTags } from './components/MetaTags';
+import { SITE_INFO } from './data/siteData';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'gallery' | 'contact'>('home');
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [isParentModalOpen, setIsParentModalOpen] = useState(false);
+
+  // Default Home Page Meta Tags (Open Graph & Twitter)
+  useMetaTags({
+    title: 'SAMATHS SOLUTIONS | Abacus Mental Maths School Program in Ghana',
+    description: 'Transform your child\'s mathematical speed, memory, and concentration with Abacus Mental Maths classes across Sunyani, Accra, and all parts of Ghana. 2 classes a week.',
+    url: typeof window !== 'undefined' ? window.location.origin : '',
+    image: SITE_INFO.images.heroBanner,
+    keywords: 'Abacus mental maths Ghana, SAMATHS SOLUTIONS Sunyani Accra, school maths program, brain boosting arithmetic kids',
+  });
 
   useEffect(() => {
     const handleHash = () => {
@@ -47,11 +58,17 @@ export default function App() {
         setTimeout(() => {
           const el = document.getElementById(sectionId);
           if (el) {
-            el.scrollIntoView({ behavior: 'smooth' });
+            const headerOffset = 110;
+            const elementPosition = el.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth',
+            });
           } else {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
-        }, 80);
+        }, 60);
       } else {
         window.location.hash = 'home';
         window.scrollTo({ top: 0, behavior: 'smooth' });

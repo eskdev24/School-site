@@ -100,7 +100,7 @@ export const CallToAction: React.FC<CallToActionProps> = ({ onOpenDemoModal, onO
 
                 <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-4 mb-6">
                   <div className="text-xs text-slate-300 font-bold mb-1">
-                    What happens during the FREE Session?
+                    What happens during the Session?
                   </div>
                   <ul className="text-xs text-slate-300 space-y-1">
                     <li className="flex items-center gap-1.5">
@@ -124,7 +124,7 @@ export const CallToAction: React.FC<CallToActionProps> = ({ onOpenDemoModal, onO
                 className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-amber-300" />
-                <span>Book a FREE Session Today</span>
+                <span>Book a Session</span>
               </button>
             </motion.div>
 

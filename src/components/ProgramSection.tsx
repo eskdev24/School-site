@@ -76,7 +76,7 @@ export const ProgramSection: React.FC<ProgramSectionProps> = ({ onOpenDemoModal,
         {/* What Children Learn Heading */}
         <div className="mb-10 text-center">
           <h3 className="font-heading font-extrabold text-2xl sm:text-3xl text-slate-900">
-            What Children Learn With SAMATHS SOLUTIONS
+            What Children Learn With <span className="font-logo font-black"><span className="text-amber-500">SAMATHS</span> <span className="text-emerald-700">SOLUTIONS</span></span>
           </h3>
           <p className="text-slate-600 text-sm mt-1">
             4 Core Brain-Boosting Skills Mastered Every Term
@@ -140,14 +140,14 @@ export const ProgramSection: React.FC<ProgramSectionProps> = ({ onOpenDemoModal,
                 onClick={onOpenDemoModal}
                 className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all flex items-center gap-2"
               >
-                <span>Book a Free Session</span>
+                <span>Book a Session</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={onOpenParentModal}
                 className="px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 font-bold text-xs uppercase tracking-wider transition-all"
               >
-                Parent Registration
+                Register Now
               </button>
             </div>
           </div>

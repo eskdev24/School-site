@@ -57,7 +57,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemoModal, onOpenParentModal }
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-20">
-        <div className="max-w-3xl">
+        <div className="max-w-4xl">
           
           {/* Top Pill Badge */}
           <motion.div
@@ -67,7 +67,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemoModal, onOpenParentModal }
             className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 font-semibold text-xs tracking-wider uppercase mb-6 backdrop-blur-sm"
           >
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>SAMATHS SOLUTIONS ({SITE_INFO.tagline})</span>
+            <span>
+              <span className="font-logo font-bold text-amber-400">SAMATHS</span>{' '}
+              <span className="font-logo font-bold text-emerald-400">SOLUTIONS</span>{' '}
+              <span className="text-emerald-300">({SITE_INFO.tagline})</span>
+            </span>
           </motion.div>
 
           {/* Headline */}
@@ -75,9 +79,16 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemoModal, onOpenParentModal }
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-heading font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight mb-4"
+            className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white tracking-tight leading-[1.18] mb-5"
           >
-            Is Your Child <span className="text-amber-400 underline decoration-emerald-500 underline-offset-8">Struggling</span> With Maths?
+            <span className="block">Is Your Child</span>
+            <span className="block mt-1.5 sm:mt-2.5">
+              <span className="relative inline-block text-amber-400">
+                Struggling
+                <span className="absolute -bottom-1 left-0 right-0 h-[3.5px] sm:h-[4px] md:h-[5px] bg-emerald-400 rounded-full" />
+              </span>{' '}
+              <span className="whitespace-nowrap">With Maths?</span>
+            </span>
           </motion.h1>
 
           {/* Subheadline */}
@@ -111,7 +122,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemoModal, onOpenParentModal }
               onClick={onOpenDemoModal}
               className="px-8 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-3 group"
             >
-              <span>Book a Free Session</span>
+              <span>Book a Session</span>
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
 

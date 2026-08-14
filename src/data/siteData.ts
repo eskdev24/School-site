@@ -162,7 +162,7 @@ export const SITE_INFO = {
     forSchools: {
       title: "FOR SCHOOL OWNERS & HEADMISTRESSES",
       lead: "Partner with SAMATHS SOLUTIONS and make your school the #1 for Maths excellence.",
-      action: "Book a FREE session for your students today."
+      action: "Book a session for your students today."
     }
   },
 

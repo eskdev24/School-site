@@ -73,7 +73,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenDemoModal }) =
               </span>
 
               <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight mt-3 mb-4 leading-tight">
-                Welcome to <span className="text-emerald-700">{SITE_INFO.brandName}</span>
+                Welcome to <span className="font-logo font-black"><span className="text-amber-500">SAMATHS</span> <span className="text-emerald-700">SOLUTIONS</span></span>
               </h2>
 
               <p className="text-lg font-bold text-slate-800 mb-4 border-l-4 border-amber-500 pl-4 py-1">

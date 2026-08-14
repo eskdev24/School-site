@@ -2,7 +2,6 @@
 
 @layer base {
   html, body {
-    overflow-x: hidden;
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
@@ -12,6 +11,9 @@
   }
   h1, h2, h3, h4, .font-heading {
     font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  }
+  .font-logo, .font-brand {
+    font-family: 'Lexend', 'Montserrat', system-ui, sans-serif;
   }
 }
 

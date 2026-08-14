@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Phone, Mail, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Clock, CreditCard, ArrowLeft, Sparkles, HelpCircle } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Clock, CreditCard, ArrowLeft, Sparkles, HelpCircle, AlertCircle } from 'lucide-react';
 import { SITE_INFO } from '../data/siteData';
+import { useMetaTags } from './MetaTags';
+import { isValidEmail, isValidPhone } from '../lib/validation';
 
 interface ContactPageProps {
   onBackToHome: () => void;
@@ -14,6 +16,15 @@ export const ContactPage: React.FC<ContactPageProps> = ({
   onOpenDemoModal,
   onOpenParentModal,
 }) => {
+  // Dynamic Open Graph & Twitter Social Meta Tags for Contact Page
+  useMetaTags({
+    title: 'Contact & School Partnerships | SAMATHS SOLUTIONS Ghana',
+    description: 'Get in touch with SAMATHS SOLUTIONS. Register your child for abacus mental arithmetic or book a free trial demo session for your school. Call/WhatsApp 0536541414.',
+    url: `${typeof window !== 'undefined' ? window.location.origin : ''}#contact`,
+    image: SITE_INFO.images.abacusClassroom || SITE_INFO.images.heroBanner,
+    keywords: 'Contact SAMATHS SOLUTIONS, register abacus child Ghana, school demo booking Sunyani, 0536541414, mental arithmetic partnership Accra',
+  });
+
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -23,12 +34,39 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     message: ''
   });
 
+  const [errors, setErrors] = useState<{
+    phone?: string;
+    email?: string;
+    fullName?: string;
+  }>({});
+
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  const validateForm = () => {
+    const newErrors: { phone?: string; email?: string; fullName?: string } = {};
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Please enter your full name';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Please enter your phone/WhatsApp number';
+    } else if (!isValidPhone(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number (e.g. 0536541414 or +233...)';
+    }
+
+    if (formData.email.trim() && !isValidEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address (e.g. name@example.com)';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.phone) return;
+    if (!validateForm()) return;
 
     // Send formatted message via WhatsApp to 0536541414
     const text = `Hello SAMATHS SOLUTIONS!\n\n` +
@@ -36,6 +74,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       `*Name:* ${formData.fullName}\n` +
       `*Role:* ${formData.role}\n` +
       `*Phone:* ${formData.phone}\n` +
+      (formData.email ? `*Email:* ${formData.email}\n` : '') +
       `*Location:* ${formData.location}\n` +
       `*Message:* ${formData.message || 'I would like more information.'}`;
 
@@ -102,7 +141,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
           <div className="max-w-3xl">
             <h1 className="font-heading font-black text-3xl sm:text-5xl text-white tracking-tight leading-tight mb-4">
-              Get In Touch With SAMATHS SOLUTIONS
+              Get In Touch With <span className="font-logo"><span className="text-amber-400">SAMATHS</span> <span className="text-emerald-400">SOLUTIONS</span></span>
             </h1>
             <p className="text-emerald-100 text-base sm:text-lg leading-relaxed">
               We are excited to help your child excel in maths or bring our proven abacus mental arithmetic program to your school. Reach out to us directly or consult our FAQs below.
@@ -237,12 +276,20 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     </label>
                     <input
                       type="text"
-                      required
                       placeholder="e.g. Abena Mensah"
                       value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 text-sm outline-none transition-all"
+                      onChange={(e) => {
+                        setFormData({ ...formData, fullName: e.target.value });
+                        if (errors.fullName) setErrors({ ...errors, fullName: undefined });
+                      }}
+                      className={`w-full px-4 py-3 rounded-xl border ${errors.fullName ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 text-sm outline-none transition-all`}
                     />
+                    {errors.fullName && (
+                      <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.fullName}</span>
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -251,16 +298,49 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     </label>
                     <input
                       type="tel"
-                      required
-                      placeholder="e.g. 024XXXXXXX"
+                      placeholder="e.g. 0536541414"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 text-sm outline-none transition-all"
+                      onChange={(e) => {
+                        setFormData({ ...formData, phone: e.target.value });
+                        if (errors.phone) setErrors({ ...errors, phone: undefined });
+                      }}
+                      className={`w-full px-4 py-3 rounded-xl border ${errors.phone ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 text-sm outline-none transition-all`}
                     />
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.phone}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Email Address (Optional)
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
+                      <input
+                        type="email"
+                        placeholder="e.g. parent@example.com"
+                        value={formData.email}
+                        onChange={(e) => {
+                          setFormData({ ...formData, email: e.target.value });
+                          if (errors.email) setErrors({ ...errors, email: undefined });
+                        }}
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl border ${errors.email ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 text-sm outline-none transition-all`}
+                      />
+                    </div>
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.email}</span>
+                      </p>
+                    )}
+                  </div>
+
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                       I am a:
@@ -276,22 +356,22 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                       <option value="Teacher">Teacher / Administrator</option>
                     </select>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      Region / City
-                    </label>
-                    <select
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 text-sm outline-none transition-all bg-white"
-                    >
-                      <option value="Sunyani">Sunyani (Bono Region)</option>
-                      <option value="Accra">Accra (Greater Accra)</option>
-                      <option value="Kumasi">Kumasi (Ashanti Region)</option>
-                      <option value="Other Ghana City">Other Ghana City</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Region / City
+                  </label>
+                  <select
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 text-sm outline-none transition-all bg-white"
+                  >
+                    <option value="Sunyani">Sunyani (Bono Region)</option>
+                    <option value="Accra">Accra (Greater Accra)</option>
+                    <option value="Kumasi">Kumasi (Ashanti Region)</option>
+                    <option value="Other Ghana City">Other Ghana City</option>
+                  </select>
                 </div>
 
                 <div>

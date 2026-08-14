@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, User, Phone, School, MapPin, CreditCard, CheckCircle2, Send, Sparkles, AlertCircle } from 'lucide-react';
+import { X, User, Phone, Mail, School, MapPin, CreditCard, CheckCircle2, Send, Sparkles, AlertCircle } from 'lucide-react';
 import { SITE_INFO } from '../data/siteData';
 import { ParentRegistrationData } from '../types';
+import { isValidEmail, isValidPhone } from '../lib/validation';
 
 interface ParentRegisterModalProps {
   isOpen: boolean;
@@ -20,17 +21,61 @@ export const ParentRegisterModal: React.FC<ParentRegisterModalProps> = ({ isOpen
     paymentMethod: 'Business MoMo'
   });
 
+  const [errors, setErrors] = useState<{
+    childName?: string;
+    schoolName?: string;
+    parentName?: string;
+    phone?: string;
+    email?: string;
+  }>({});
+
   const [submitted, setSubmitted] = useState(false);
 
   if (!isOpen) return null;
 
+  const validateForm = () => {
+    const newErrors: {
+      childName?: string;
+      schoolName?: string;
+      parentName?: string;
+      phone?: string;
+      email?: string;
+    } = {};
+
+    if (!formData.childName.trim()) {
+      newErrors.childName = "Please enter your child's full name";
+    }
+
+    if (!formData.schoolName.trim()) {
+      newErrors.schoolName = "Please enter the school attended";
+    }
+
+    if (!formData.parentName.trim()) {
+      newErrors.parentName = "Please enter parent/guardian name";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Please enter a phone or WhatsApp number";
+    } else if (!isValidPhone(formData.phone)) {
+      newErrors.phone = "Please enter a valid phone number (e.g. 0536541414 or +233...)";
+    }
+
+    if (formData.email.trim() && !isValidEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address (e.g. parent@example.com)";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setSubmitted(true);
   };
 
   const handleWhatsAppRedirect = () => {
-    const message = `Hello SAMATHS SOLUTIONS,%0A%0AI have registered my child for the Abacus Mental Maths Program!%0A%0A*Parent Name:* ${encodeURIComponent(formData.parentName)}%0A*Child Name:* ${encodeURIComponent(formData.childName)} (Age ${formData.childAge})%0A*School Name:* ${encodeURIComponent(formData.schoolName)}%0A*Phone:* ${encodeURIComponent(formData.phone)}%0A*Location:* ${encodeURIComponent(formData.location)}%0A*Payment Status:* Paying via Business MoMo [0536541414]`;
+    const message = `Hello SAMATHS SOLUTIONS,%0A%0AI have registered my child for the Abacus Mental Maths Program!%0A%0A*Parent Name:* ${encodeURIComponent(formData.parentName)}%0A*Child Name:* ${encodeURIComponent(formData.childName)} (Age ${formData.childAge})%0A*School Name:* ${encodeURIComponent(formData.schoolName)}%0A*Phone:* ${encodeURIComponent(formData.phone)}${formData.email ? `%0A*Email:* ${encodeURIComponent(formData.email)}` : ''}%0A*Location:* ${encodeURIComponent(formData.location)}%0A*Payment Status:* Paying via Business MoMo [0536541414]`;
     window.open(`https://wa.me/${SITE_INFO.phoneRaw}?text=${message}`, '_blank');
   };
 
@@ -54,7 +99,7 @@ export const ParentRegisterModal: React.FC<ParentRegisterModalProps> = ({ isOpen
           </div>
 
           <h3 className="font-heading font-extrabold text-2xl text-white">
-            Give Your Child The Brain Advantage
+            Enroll Your Child Now
           </h3>
           <p className="text-xs text-slate-200 mt-1">
             Register your child for SAMATHS Abacus Mental Maths (Limited slots per school).
@@ -132,13 +177,21 @@ export const ParentRegisterModal: React.FC<ParentRegisterModalProps> = ({ isOpen
                     <User className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                     <input
                       type="text"
-                      required
                       placeholder="e.g. Kojo Mensah"
                       value={formData.childName}
-                      onChange={(e) => setFormData({ ...formData, childName: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
+                      onChange={(e) => {
+                        setFormData({ ...formData, childName: e.target.value });
+                        if (errors.childName) setErrors({ ...errors, childName: undefined });
+                      }}
+                      className={`w-full pl-9 pr-3 py-2.5 rounded-xl border ${errors.childName ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
                     />
                   </div>
+                  {errors.childName && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.childName}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -167,13 +220,21 @@ export const ParentRegisterModal: React.FC<ParentRegisterModalProps> = ({ isOpen
                   <School className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                   <input
                     type="text"
-                    required
                     placeholder="e.g. Sunyani International School"
                     value={formData.schoolName}
-                    onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
+                    onChange={(e) => {
+                      setFormData({ ...formData, schoolName: e.target.value });
+                      if (errors.schoolName) setErrors({ ...errors, schoolName: undefined });
+                    }}
+                    className={`w-full pl-9 pr-3 py-2.5 rounded-xl border ${errors.schoolName ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
                   />
                 </div>
+                {errors.schoolName && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{errors.schoolName}</span>
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -183,12 +244,20 @@ export const ParentRegisterModal: React.FC<ParentRegisterModalProps> = ({ isOpen
                   </label>
                   <input
                     type="text"
-                    required
                     placeholder="e.g. Mr. Emmanuel Mensah"
                     value={formData.parentName}
-                    onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
+                    onChange={(e) => {
+                      setFormData({ ...formData, parentName: e.target.value });
+                      if (errors.parentName) setErrors({ ...errors, parentName: undefined });
+                    }}
+                    className={`w-full px-3 py-2.5 rounded-xl border ${errors.parentName ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
                   />
+                  {errors.parentName && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.parentName}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -199,32 +268,67 @@ export const ParentRegisterModal: React.FC<ParentRegisterModalProps> = ({ isOpen
                     <Phone className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                     <input
                       type="tel"
-                      required
-                      placeholder="0536541414"
+                      placeholder="e.g. 0536541414"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm"
+                      onChange={(e) => {
+                        setFormData({ ...formData, phone: e.target.value });
+                        if (errors.phone) setErrors({ ...errors, phone: undefined });
+                      }}
+                      className={`w-full pl-9 pr-3 py-2.5 rounded-xl border ${errors.phone ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
                     />
                   </div>
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.phone}</span>
+                    </p>
+                  )}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Location *
-                </label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                  <select
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm bg-white"
-                  >
-                    <option value="Sunyani">Sunyani</option>
-                    <option value="Accra">Accra</option>
-                    <option value="Kumasi">Kumasi</option>
-                    <option value="Other Part of Ghana">Other Part of Ghana</option>
-                  </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    Email Address (Optional)
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                    <input
+                      type="email"
+                      placeholder="e.g. parent@example.com"
+                      value={formData.email}
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value });
+                        if (errors.email) setErrors({ ...errors, email: undefined });
+                      }}
+                      className={`w-full pl-9 pr-3 py-2.5 rounded-xl border ${errors.email ? 'border-red-400 bg-red-50/30' : 'border-slate-300'} focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm`}
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                    Location *
+                  </label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                    <select
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 text-sm bg-white"
+                    >
+                      <option value="Sunyani">Sunyani</option>
+                      <option value="Accra">Accra</option>
+                      <option value="Kumasi">Kumasi</option>
+                      <option value="Other Part of Ghana">Other Part of Ghana</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 

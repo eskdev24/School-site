@@ -22,10 +22,10 @@ export const WhyChooseUs: React.FC = () => {
         {/* Section Title */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-emerald-400 font-extrabold text-xs tracking-widest uppercase bg-emerald-950 border border-emerald-800 px-3.5 py-1 rounded-full">
-            WHY CHOOSE SAMATHS SOLUTIONS
+            WHY CHOOSE <span className="text-amber-400">SAMATHS</span> <span className="text-emerald-400">SOLUTIONS</span>
           </span>
           <h2 className="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight mt-3 mb-4">
-            Why Schools & Parents Trust SAMATHS
+            Why Schools & Parents Trust <span className="text-amber-400 font-logo">SAMATHS</span>
           </h2>
           <p className="text-slate-300 text-base leading-relaxed">
             We deliver complete peace of mind for school management and tangible academic acceleration for every registered child.
