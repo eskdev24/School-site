@@ -1,6 +1,6 @@
 {
   "name": "SAMATHS SOLUTIONS",
-  "description": "Leading Abacus Mental Maths school program in Ghana. Fast, fun, and easy mental maths for children.",
+  "description": "Leading Abacus Mental Maths school program and real-time student registration & school demo CRM in Ghana with Firebase Firestore.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -29,7 +29,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenDemoModal, onO
             <BrandLogo theme="dark" size="md" />
 
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-              Leading Abacus Mental Maths company in Accra, Sunyani, Ghana. We partner with schools to deliver fun, brain-boosting classes that transform how children think, learn, and calculate.
+              We Make Maths Fast, Fun, and Easy with Abacus. Connect with us now.
             </p>
           </div>
 

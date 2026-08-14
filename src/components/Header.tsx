@@ -9,11 +9,15 @@ interface HeaderProps {
   onNavigate: (page: 'home' | 'gallery' | 'contact', sectionId?: string) => void;
   onOpenDemoModal?: () => void;
   onOpenParentModal?: () => void;
+  onOpenAdminPortal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentPage,
   onNavigate,
+  onOpenDemoModal,
+  onOpenParentModal,
+  onOpenAdminPortal,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('home');
@@ -236,6 +240,21 @@ export const Header: React.FC<HeaderProps> = ({
                 </a>
               );
             })}
+
+            {/* Mobile Actions */}
+            {onOpenDemoModal && (
+              <div className="pt-3 flex flex-col gap-2 border-t border-slate-100 mt-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenDemoModal();
+                  }}
+                  className="w-full py-2.5 px-4 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs uppercase tracking-wider text-center"
+                >
+                  Book Free School Demo
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

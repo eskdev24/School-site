@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Parent Registrations
+    match /parent_registrations/{registrationId} {
+      allow create: if request.resource.data.childName is string
+                    && request.resource.data.parentName is string
+                    && request.resource.data.phone is string;
+      allow read, update, delete: if true;
+    }
+
+    // School Demo Bookings
+    match /demo_bookings/{bookingId} {
+      allow create: if request.resource.data.schoolName is string
+                    && request.resource.data.contactPerson is string
+                    && request.resource.data.phone is string;
+      allow read, update, delete: if true;
+    }
+
+    // Contact Inquiries
+    match /contact_inquiries/{inquiryId} {
+      allow create: if request.resource.data.fullName is string
+                    && request.resource.data.phone is string;
+      allow read, update, delete: if true;
+    }
+  }
+}

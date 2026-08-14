@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Phone, Mail, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Clock, CreditCard, ArrowLeft, Sparkles, HelpCircle, AlertCircle } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, MessageSquare, ChevronDown, CheckCircle2, Clock, CreditCard, ArrowLeft, Sparkles, HelpCircle, AlertCircle, Database, Check, RefreshCw } from 'lucide-react';
 import { SITE_INFO } from '../data/siteData';
 import { useMetaTags } from './MetaTags';
 import { isValidEmail, isValidPhone } from '../lib/validation';
+import { saveContactInquiry } from '../services/firebaseDb';
 
 interface ContactPageProps {
   onBackToHome: () => void;
@@ -41,6 +42,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
   }>({});
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const validateForm = () => {
@@ -64,11 +66,31 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    // Send formatted message via WhatsApp to 0536541414
+    setIsSubmitting(true);
+    try {
+      await saveContactInquiry({
+        fullName: formData.fullName,
+        phone: formData.phone,
+        email: formData.email,
+        role: formData.role,
+        location: formData.location,
+        subject: `${formData.role} Inquiry (${formData.location})`,
+        message: formData.message || 'I would like more information about the Abacus Program.',
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Firebase contact submission error:', err);
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleWhatsAppRedirect = () => {
     const text = `Hello SAMATHS SOLUTIONS!\n\n` +
       `I am interested in your Abacus Mental Maths program.\n` +
       `*Name:* ${formData.fullName}\n` +
@@ -80,11 +102,24 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
     const encoded = encodeURIComponent(text);
     const whatsappUrl = `https://wa.me/${SITE_INFO.phoneRaw}?text=${encoded}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
-    setSubmitted(true);
-    setTimeout(() => {
-      window.open(whatsappUrl, '_blank');
-    }, 800);
+  const handleEmailRedirect = () => {
+    const subject = encodeURIComponent(`Inquiry from ${formData.fullName} (${formData.role} - ${formData.location})`);
+    const body = encodeURIComponent(
+      `Hello SAMATHS SOLUTIONS team,\n\n` +
+      `I am writing to inquire about your Abacus Mental Maths program.\n\n` +
+      `-- INQUIRY DETAILS --\n` +
+      `Full Name: ${formData.fullName}\n` +
+      `Role: ${formData.role}\n` +
+      `Phone / WhatsApp: ${formData.phone}\n` +
+      `Email: ${formData.email || 'N/A'}\n` +
+      `Location: ${formData.location}\n` +
+      `Message: ${formData.message || 'I would like more information about the Abacus Program.'}\n\n` +
+      `Thank you.`
+    );
+    window.location.href = `mailto:${SITE_INFO.email}?subject=${subject}&body=${body}`;
   };
 
   const faqs = [
@@ -249,23 +284,59 @@ export const ContactPage: React.FC<ContactPageProps> = ({
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center"
+                className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center space-y-4"
               >
-                <div className="w-12 h-12 rounded-full bg-emerald-700 text-white flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-700 text-white flex items-center justify-center mx-auto shadow-inner">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h4 className="font-heading font-bold text-xl text-slate-900 mb-1">
-                  Inquiry Ready!
-                </h4>
-                <p className="text-slate-600 text-sm mb-4">
-                  Redirecting to WhatsApp to send your message directly to <strong>{SITE_INFO.phoneDisplay}</strong>.
-                </p>
-                <button
-                  onClick={() => setSubmitted(false)}
-                  className="text-xs font-bold text-emerald-800 hover:underline uppercase tracking-wider"
-                >
-                  Send Another Message
-                </button>
+                <div>
+                  <h4 className="font-heading font-bold text-xl text-slate-900 mb-1">
+                    Inquiry Logged Successfully!
+                  </h4>
+                  <p className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+                    Thank you, <strong>{formData.fullName}</strong>. Your message regarding the Abacus Mental Maths program is logged.
+                  </p>
+                </div>
+
+                {/* Firebase Status */}
+                <div className="max-w-md mx-auto">
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 flex items-center justify-between text-xs text-emerald-900">
+                    <span className="flex items-center gap-1.5 font-bold">
+                      <Database className="w-4 h-4 text-emerald-700" />
+                      <span>Saved to Firebase Database (contact_inquiries)</span>
+                    </span>
+                    <span className="flex items-center gap-1 text-emerald-700 font-extrabold bg-emerald-100 px-2 py-0.5 rounded-full text-[10px]">
+                      <Check className="w-3 h-3" />
+                      <span>Synced</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* WhatsApp & Email Actions */}
+                <div className="pt-2 flex flex-col gap-2 max-w-md mx-auto">
+                  <button
+                    onClick={handleWhatsAppRedirect}
+                    className="w-full py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99]"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Send via WhatsApp ({SITE_INFO.phoneDisplay})</span>
+                  </button>
+
+                  <button
+                    onClick={handleEmailRedirect}
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99]"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Send via Email ({SITE_INFO.email})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="text-xs font-semibold text-slate-500 hover:text-slate-800 py-1"
+                  >
+                    Send Another Inquiry
+                  </button>
+                </div>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">

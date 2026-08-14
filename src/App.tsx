@@ -10,8 +10,10 @@ import { ContactPage } from './components/ContactPage';
 import { CallToAction } from './components/CallToAction';
 import { DemoBookingModal } from './components/DemoBookingModal';
 import { ParentRegisterModal } from './components/ParentRegisterModal';
+import { AdminLeadDashboard } from './components/AdminLeadDashboard';
 import { FloatingActions } from './components/FloatingActions';
 import { Footer } from './components/Footer';
+import { FirebaseSyncBar } from './components/FirebaseSyncBar';
 import { useMetaTags } from './components/MetaTags';
 import { SITE_INFO } from './data/siteData';
 
@@ -19,6 +21,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'gallery' | 'contact'>('home');
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [isParentModalOpen, setIsParentModalOpen] = useState(false);
+  const [isAdminPortalOpen, setIsAdminPortalOpen] = useState(false);
 
   // Default Home Page Meta Tags (Open Graph & Twitter)
   useMetaTags({
@@ -35,6 +38,8 @@ export default function App() {
         setCurrentPage('contact');
       } else if (window.location.hash === '#gallery') {
         setCurrentPage('gallery');
+      } else if (window.location.hash === '#admin') {
+        setIsAdminPortalOpen(true);
       } else {
         setCurrentPage('home');
       }
@@ -79,6 +84,9 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 selection:bg-emerald-600 selection:text-white">
       
+      {/* Top Firebase Cloud Status & Admin Bar */}
+      <FirebaseSyncBar onOpenAdminPortal={() => setIsAdminPortalOpen(true)} />
+
       {/* Header Bar */}
       <Header
         currentPage={currentPage}
@@ -156,7 +164,17 @@ export default function App() {
         onClose={() => setIsParentModalOpen(false)}
       />
 
+      {/* Firebase Admin Lead & Registration Portal */}
+      <AdminLeadDashboard
+        isOpen={isAdminPortalOpen}
+        onClose={() => {
+          setIsAdminPortalOpen(false);
+          if (window.location.hash === '#admin') {
+            window.location.hash = currentPage === 'home' ? 'home' : currentPage;
+          }
+        }}
+      />
+
     </div>
   );
 }
-
