@@ -20,7 +20,7 @@ export const SITE_INFO = {
   about: {
     title: "ABOUT US",
     leadText: "At SAMATHS SOLUTIONS, we believe every child can be a Maths champion.",
-    description: "We are a leading Abacus Mental Maths company in Accra, Sunyani, Ghana. We partner with schools to deliver fun, brain-boosting classes that transform how children think, learn, and calculate.",
+    description: "We are a leading Abacus Mental Maths Institution in Sunyani, Accra, Ghana. We partner with schools to deliver fun, brain-boosting classes that transform how children think, learn, and calculate.",
     methodology: "In just 2 classes a week, our certified teachers use the abacus to train children’s brains for speed, accuracy, focus and confidence.",
     currentServedSchools: "30 schools",
     totalStudents: "800+",
