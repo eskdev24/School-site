@@ -1,0 +1,62 @@
+{
+  "rules": {
+    "parent_registrations": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["createdAt", "status"],
+      "$registrationId": {
+        ".validate": "newData.hasChildren(['childName', 'schoolName', 'parentName', 'phone', 'status'])",
+        "childName": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "childAge": { ".validate": "newData.isString()" },
+        "schoolName": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "location": { ".validate": "newData.isString()" },
+        "parentName": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "phone": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "email": { ".validate": "newData.isString()" },
+        "paymentMethod": { ".validate": "newData.isString()" },
+        "paymentStatus": { ".validate": "newData.isString()" },
+        "status": { ".validate": "newData.isString()" },
+        "timestampDisplay": { ".validate": "newData.isString()" },
+        "createdAt": { ".validate": "newData.isNumber()" }
+      }
+    },
+    "demo_bookings": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["createdAt", "status"],
+      "$bookingId": {
+        ".validate": "newData.hasChildren(['schoolName', 'contactPerson', 'phone', 'status'])",
+        "schoolName": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "location": { ".validate": "newData.isString()" },
+        "contactPerson": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "role": { ".validate": "newData.isString()" },
+        "phone": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "email": { ".validate": "newData.isString()" },
+        "estimatedStudents": { ".validate": "newData.isString()" },
+        "preferredDate": { ".validate": "newData.isString()" },
+        "additionalNotes": { ".validate": "newData.isString()" },
+        "status": { ".validate": "newData.isString()" },
+        "timestampDisplay": { ".validate": "newData.isString()" },
+        "createdAt": { ".validate": "newData.isNumber()" }
+      }
+    },
+    "contact_inquiries": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["createdAt", "status"],
+      "$inquiryId": {
+        ".validate": "newData.hasChildren(['fullName', 'phone', 'message', 'status'])",
+        "fullName": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "phone": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "email": { ".validate": "newData.isString()" },
+        "role": { ".validate": "newData.isString()" },
+        "location": { ".validate": "newData.isString()" },
+        "subject": { ".validate": "newData.isString()" },
+        "message": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "status": { ".validate": "newData.isString()" },
+        "timestampDisplay": { ".validate": "newData.isString()" },
+        "createdAt": { ".validate": "newData.isNumber()" }
+      }
+    }
+  }
+}
